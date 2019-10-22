@@ -1,10 +1,11 @@
-ansible-windows-docker-springboot
+ansible-win2019-virtualization
 ======================================================================================
 [![Build Status](https://travis-ci.org/jonashackt/ansible-windows-docker-springboot.svg?branch=master)](https://travis-ci.org/jonashackt/ansible-windows-docker-springboot)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-jonashackt-660198.svg)](https://galaxy.ansible.com/jonashackt)
 
 ## Example project showing how to provision, deploy and run Ruby apps and Percona MySQL DB inside Docker Windows Containers on Windows Host using Packer, Powershell, Vagrant & Ansible/AWX. 
 Additional step for VMs with Hyper-V for sidekicks apps which is hard to put in containers.
+To be in use with the ae-exact/ansible-docker-2019platform repo.
 
 This is a follow-up to the repository [ jonashackt/ansible-windows-docker-springboot](https://github.com/jonashackt/ansible-windows-docker-springboot). There are some corresponding follow up blog posts available:
 
