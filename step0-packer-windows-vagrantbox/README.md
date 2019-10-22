@@ -1,6 +1,6 @@
-Ansible ready & packer.io build Windows Server 2016 Vagrant box
+Ansible ready & packer.io build Windows Server 2019 Vagrant box
 ======================================================================================
-#### packer template and some Powershell scripts to build a Ansible-ready Windows Server 2016 Vagrant box (as alternative to the [Vagrant box with Windows 10 from the Microsoft Edge developer site](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads), which doesn´t work with Docker because of the wrong build number)
+#### packer template and some Powershell scripts to build a Ansible-ready Windows Server 2019 Vagrant box (as alternative to the [Vagrant box with Windows 10 from the Microsoft Edge developer site](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads), which doesn´t work with Docker because of the wrong build number)
 
 The box has Ansible-connectitity "turned on" (so WinRM, Firewall settings, Network settings and so on) and is a working basis for a Docker Windows Container installment.
 
