@@ -3,15 +3,16 @@ ansible-windows-docker-springboot
 [![Build Status](https://travis-ci.org/jonashackt/ansible-windows-docker-springboot.svg?branch=master)](https://travis-ci.org/jonashackt/ansible-windows-docker-springboot)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-jonashackt-660198.svg)](https://galaxy.ansible.com/jonashackt)
 
-## Example project showing how to provision, deploy and run Spring Boot apps inside Docker Windows Containers on Windows Host using Packer, Powershell, Vagrant & Ansible
+## Example project showing how to provision, deploy and run Ruby apps and Percona MySQL DB inside Docker Windows Containers on Windows Host using Packer, Powershell, Vagrant & Ansible/AWX. 
+Additional step for VMs with Hyper-V for sidekicks apps which is hard to put in containers.
 
-This is a follow-up to the repository [ansible-windows-springboot](https://github.com/jonashackt/ansible-windows-springboot) and the blog post [Running Spring Boot Apps on Windows with Ansible (codecentric.de)](https://blog.codecentric.de/en/2017/01/ansible-windows-spring-boot/). There are some corresponding follow up blog posts available:
+This is a follow-up to the repository [ jonashackt/ansible-windows-docker-springboot](https://github.com/jonashackt/ansible-windows-docker-springboot). There are some corresponding follow up blog posts available:
 
 * [Docker-Windows-Container mit Ansible managen (1/2)](https://www.heise.de/developer/artikel/Docker-Windows-Container-mit-Ansible-managen-1-2-3824736.html) on [heise developer](https://www.heise.de/developer/) (german only)
 * [Running Spring Boot Apps on Docker Windows Containers with Ansible: A Complete Guide incl Packer, Vagrant & Powershell](https://blog.codecentric.de/en/2017/04/ansible-docker-windows-containers-spring-boot/)
 * [Scaling Spring Boot Apps on Docker Windows Containers with Ansible: A Complete Guide incl Spring Cloud Netflix and Docker Compose](https://blog.codecentric.de/en/2017/05/ansible-docker-windows-containers-scaling-spring-cloud-netflix-docker-compose/)
 
-This repository uses the following example Spring Boot / Cloud applications for provisioning: [cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker)
+
 
 
 ##### Table of Contents  
@@ -36,7 +37,7 @@ This repository uses the following example Spring Boot / Cloud applications for 
 
 
 ## Before you start...
-
+Change to win 2019 - build 1903
 Because [Microsoft &amp; Docker Inc. developed a native Docker implementation on Windows](https://blog.docker.com/2016/09/dockerforws2016/) using Hyper-V (or even a thinner layer) which let´s you run tiny little Windows containers inside your Windows box, which are accessible through the Docker API, I wanted to get my hands on them as soon as I heard of it. A list of [example Windows Docker Images is provided here](https://hub.docker.com/r/microsoft/).
 
 Firing up Spring Boot apps with Ansible on Windows using Docker sound´s like the next step after [Running Spring Boot Apps on Windows with Ansible (codecentric.de)](https://blog.codecentric.de/en/2017/01/ansible-windows-spring-boot/).
@@ -56,11 +57,11 @@ Because of the minimal required build of Windows 10 or Server 2016, we sadly can
 
 ## Preperation: Find a Windows Box - the Evalutation ISO
 
-After a bit of research, you´ll find another way to evaluate a current Windows Version: The [Windows 10 Enterprise Evalutation ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-10-enterprise) or the [Windows Server 2016 Evalutation ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016). Both the Windows 2016 Server and the 10 Enterprise come with a 180 Days Evaluation licence (you have to register a live-ID for that).
+After a bit of research, you´ll find another way to evaluate a current Windows Version: The [Windows 10 Enterprise Evalutation ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-10-enterprise) or the [Windows Server 2019 Evalutation ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2019). Both the Windows 2019 Server and the 10 Enterprise come with a 180 Days Evaluation licence (you have to register a live-ID for that).
 
 > __DISCLAIMER:__ There are [two Windows Container Types](https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/) : __Windows Server Containers__ (aka isolation level "process" or shared Windows kernel) and __Hyper-V-Containers__ (aka isolation level "hyper-v"). Windows 10 only supports the latter one. But Hyper-V-Containers seem not the thing you´re used to, when it comes to the Docker core concepts - because Docker relies on Process-Level isolation and __does not__ use a Hypervisor. So with that knowledge I would strongly encourage you to go with Windows Server 2016 and leave Windows 10 behind. At first glance it seems somehow "easier" to start with the "smaller" Windows 10. But don´t do that! I can also back this advice with lot´s of ours (when not days) trying to get things to work for myself or with customers - and finally switching to Windows Server and everything was just fine!
 
-So if you really want to go with Windows 10 anyway, it shouldn´t be that much work to write your own Packer template and use the other ISO instead. Here we´ll stay with Windows Server 2016.
+So if you really want to go with Windows 10 anyway, it shouldn´t be that much work to write your own Packer template and use the other ISO instead. Here we´ll stay with Windows Server 2019.
 
 
 ## Step 0 - How to build Ansible-ready Vagrant box from a Windows ISO ([step0-packer-windows-vagrantbox](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step0-packer-windows-vagrantbox))
@@ -80,14 +81,14 @@ The WinRM connectivity is configured through the [Autounattend.xml[(https://gith
 If you like to dig deeper into the myriads of configuration options, have a look into Stefan Scherers GitHub repositories, e.g. https://github.com/StefanScherer/docker-windows-box - where I learned everything I had to - and also borrowed the mentioned [Autounattend.xml[(https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/packer/Autounattend.xml) from. You can also create one yourself from ground up - but you´ll need a running Windows instance and then install the [Windows Assessment and Deployment Kit (Windows ADK)](https://developer.microsoft.com/de-de/windows/hardware/windows-assessment-deployment-kit).
 
 
-#### Build your Windows Server 2016 Vagrant box
+#### Build your Windows Server 2019 Vagrant box
 
-Download the [Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016) and place it into the __/packer__ folder.
+Download the [Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2019) and place it into the __/packer__ folder.
 
 Inside the `step0-packer-windows-vagrantbox` directory start the build with this command:
 
 ```
-packer build -var iso_url=Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
+packer build -var iso_url=Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2019_docker.json
 ```
 
 Now get yourself a coffee. This will take some time ;)
@@ -97,10 +98,10 @@ Now get yourself a coffee. This will take some time ;)
 
 After successful packer build, you can init the Vagrant box (and receive a Vagrantfile):
 ```
-vagrant init windows_2016_docker_virtualbox.box 
+vagrant init windows_2019_docker_virtualbox.box 
 ```
 
-Now fire up your Windows Server 2016 box:
+Now fire up your Windows Server 2019 box:
 
 ```
 vagrant up
@@ -126,7 +127,7 @@ ansible-playbook -i hostsfile prepare-docker-windows.yml --extra-vars "host=ansi
 This does those things for you: 
 
 * Checking, if you have the correct minimum build version of Windows
-* Install the necessary Windows Features `containers` and `Hyper-V` (this is done Windows Version agnostic - so it will work with Windows 10 AND Server 2016 - which is quite unique, becaue Microsoft itself always distinquishes between these versions)
+* Install the necessary Windows Features `containers` and `Hyper-V` (this is done Windows Version agnostic - so it will work with Windows 10 AND Server 2019 - which is quite unique, becaue Microsoft itself always distinquishes between these versions)
 * Reboot your Windows Box, if necessary
 * Install the current Docker version (via [chocolatey docker package](https://chocolatey.org/packages/docker). And although the package claims to only install the client, it also provides the Docker Server (which means this is 100% identical with the [step 2. Install Docker in Microsoft´s tutorial](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10)).)
 * Register and Start the Docker Windows service
